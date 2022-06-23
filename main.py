@@ -19,6 +19,7 @@ logging.info("Starting up chromecasts")
 #cast = next(cc for cc in chromecasts if cc.cast_info.friendly_name == chromecast_name)
 services, browser = pychromecast.discovery.discover_chromecasts()
 chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[chromecast_name])
+logging.info(services)
 cast = chromecasts[0]
 
 def play_tts(text, lang='en', slow=False):
