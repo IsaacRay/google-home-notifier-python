@@ -2,10 +2,9 @@ from flask import Flask, request
 import pychromecast
 import logging
 import os
+import time
 from gtts import gTTS
-#from slugify import slugify
-#from pathlib import Path
-#from urllib.parse import urlparse
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,9 +13,6 @@ chromecast_name = os.environ.get('SPEAKERS')
 
 app = Flask(__name__)
 logging.info("Starting up chromecasts")
-# chromecasts, _ = pychromecast.get_chromecasts()
-#logging.info("Searching for {}".format(chromecast_name))
-#cast = next(cc for cc in chromecasts if cc.cast_info.friendly_name == chromecast_name)
 services, browser = pychromecast.discovery.discover_chromecasts()
 chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[chromecast_name])
 logging.info(services)
@@ -24,11 +20,12 @@ cast = chromecasts[0]
 
 def play_tts(text, lang='en', slow=False):
     tts = gTTS(text=text, lang=lang, slow=slow)
-    filename = "message.mp3"
+    filename = "message-{}.mp3".format(str(int(time.time()*100)))
     tts.save('/app/static/{}'.format(filename))
-    mp3_url = "http://{}.ngrok.io/static/message.mp3".format(os.environ.get('NGROK_SLUG'))
+    mp3_url = "http://{}.ngrok.io/static/{}".format(os.environ.get('NGROK_SLUG'), filename)
     logging.info(mp3_url)
     play_mp3(mp3_url)
+    os.remove('/app/static/{}'.format(filename))
 
 
 def play_mp3(mp3_url):
