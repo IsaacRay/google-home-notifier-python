@@ -3,33 +3,29 @@ import pychromecast
 import logging
 import os
 from gtts import gTTS
-from slugify import slugify
-from pathlib import Path
-from urllib.parse import urlparse
+#from slugify import slugify
+#from pathlib import Path
+#from urllib.parse import urlparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-chromecast_name = os.getenv('GRP_NAME') #set envar to match your speaker or group name
+chromecast_name = os.environ.get('SPEAKERS') 
 
 app = Flask(__name__)
 logging.info("Starting up chromecasts")
-chromecasts, _ = pychromecast.get_chromecasts()
-logging.info("Searching for {}".format(chromecast_name))
-cast = next(cc for cc in chromecasts if cc.cast_info.friendly_name == chromecast_name)
+# chromecasts, _ = pychromecast.get_chromecasts()
+#logging.info("Searching for {}".format(chromecast_name))
+#cast = next(cc for cc in chromecasts if cc.cast_info.friendly_name == chromecast_name)
+services, browser = pychromecast.discovery.discover_chromecasts()
+chromecasts, browser = pychromecast.get_listed_chromecasts(friendly_names=[chromecast_name])
+cast = chromecasts[0]
 
 def play_tts(text, lang='en', slow=False):
     tts = gTTS(text=text, lang=lang, slow=slow)
-    filename = slugify(text+"-"+lang+"-"+str(slow)) + ".mp3"
-    path = "/static/cache/"
-    cache_filename = os.path.dirname(__file__) + path + filename
-    tts_file = Path(cache_filename)
-    if not tts_file.is_file():
-        logging.info(tts)
-        tts.save(cache_filename)
-
-    urlparts = urlparse(request.url)
-    mp3_url = "http://" +urlparts.netloc + path + filename 
+    filename = "message.mp3"
+    tts.save('/app/static/{}'.format(filename))
+    mp3_url = "http://{}.ngrok.io/static/message.mp3".format(os.environ.get('NGROK_SLUG'))
     logging.info(mp3_url)
     play_mp3(mp3_url)
 
@@ -42,9 +38,9 @@ def play_mp3(mp3_url):
     mc.block_until_active()
 
 
-@app.route('/static/<path:path>')
-def send_static(path):
-        return send_from_directory('static', path)
+#@app.route('/static/<path:path>')
+#def send_static(path):
+#        return send_from_directory('static', path)
 
 @app.route('/play/<filename>')
 def play(filename):
@@ -68,4 +64,4 @@ def say():
     return text
 
 if __name__ == '__main__':
-        app.run(debug=True,host='0.0.0.0')
+        app.run(debug=True,host='0.0.0.0', port=9000)
