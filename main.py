@@ -35,20 +35,12 @@ def play_mp3(mp3_url):
     mc.play_media(mp3_url, 'audio/mp3')
     mc.block_until_active()
 
-
-#@app.route('/static/<path:path>')
-#def send_static(path):
-#        return send_from_directory('static', path)
-
-@app.route('/play/<filename>')
-def play(filename):
-    urlparts = urlparse(request.url)
-    mp3 = Path(os.path.dirname(__file__) + "/static/" + filename)
-    if mp3.is_file():
-        play_mp3("http://"+urlparts.netloc+"/static/"+filename)
-        return filename
-    else:
-        return "False"
+@app.route('/clean-up/')
+def cleanup():
+    dir = '/app/static'
+    for f in os.listdir(dir):
+        os.remove(os.path.join(dir, f))
+ 
 
 @app.route('/say/')
 def say():
