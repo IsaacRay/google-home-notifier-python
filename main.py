@@ -25,7 +25,6 @@ def play_tts(text, lang='en', slow=False):
     mp3_url = "http://{}.ngrok.io/static/{}".format(os.environ.get('NGROK_SLUG'), filename)
     logging.info(mp3_url)
     play_mp3(mp3_url)
-    os.remove('/app/static/{}'.format(filename))
 
 
 def play_mp3(mp3_url):
