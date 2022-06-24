@@ -38,7 +38,10 @@ def play_mp3(mp3_url):
 def cleanup():
     dir = '/app/static'
     for f in os.listdir(dir):
-        os.remove(os.path.join(dir, f))
+        try:
+            os.remove(os.path.join(dir, f))
+        except IsADirectoryError as e:
+            continue
  
 
 @app.route('/say/')
