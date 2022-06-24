@@ -8,5 +8,5 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-       SPEAKERS: 'Basement speaker'
+       SPEAKERS: 'Kitchen Wifi'
        NGROK_SLUG: 'imr-messenger-8334'
